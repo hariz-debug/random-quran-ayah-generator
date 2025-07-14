@@ -135,65 +135,70 @@
   <footer>Powered by AlQuran.cloud API | Built by Hariz Ghani</footer>
 
   <script>
-    const totalAyahs = 6236;
-    let remainingAyahs = [];
+const totalAyahs = 6236;
+let remainingAyahs = [];
 
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-    }
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
 
-    function resetAyahs() {
-      remainingAyahs = Array.from({length: totalAyahs}, (_, i) => i + 1);
-      shuffle(remainingAyahs);
-    }
+function resetAyahs() {
+  remainingAyahs = Array.from({length: totalAyahs}, (_, i) => i + 1);
+  shuffle(remainingAyahs);
+}
 
-    async function fetchAyah(num) {
+async function fetchAyah(num) {
   const url = `https://api.alquran.cloud/v1/ayah/${num}/editions/quran-uthmani,en.sahih`;
-  const corsProxy = "https://corsproxy.io/?";
-  const res = await fetch(corsProxy + url);
+  const res = await fetch(url);
   if (!res.ok) throw new Error('Network response was not ok');
   const data = await res.json();
   return data.data;
-    }
+}
 
-    async function displayRandomAyah() {
-      const card = document.getElementById('ayah-card');
-      const arabicEl = document.getElementById('arabic');
-      const transEl = document.getElementById('translation');
-      const refEl = document.getElementById('reference');
-      const spinner = document.getElementById('spinner');
-      const errorEl = document.getElementById('error');
+async function displayRandomAyah() {
+  const card = document.getElementById('ayah-card');
+  const arabicEl = document.getElementById('arabic');
+  const transEl = document.getElementById('translation');
+  const refEl = document.getElementById('reference');
+  const spinner = document.getElementById('spinner');
+  const errorEl = document.getElementById('error');
 
-      if (remainingAyahs.length === 0) resetAyahs();
-      const ayahNum = remainingAyahs.pop();
+  if (remainingAyahs.length === 0) resetAyahs();
+  const ayahNum = remainingAyahs.pop();
 
-      card.classList.add('hide');
-      errorEl.style.display = 'none';
-      spinner.style.display = 'block';
+  card.classList.add('hide');
+  errorEl.style.display = 'none';
+  spinner.style.display = 'block';
 
-      try {
-        const data = await fetchAyah(ayahNum);
-const arabic = data.find(d => d.edition.language === 'ar');
-const english = data.find(d => d.edition.language === 'en');
+  try {
+    const ayahs = await fetchAyah(ayahNum);
+    // Show API response in console for debugging
+    console.log("API Response:", ayahs);
 
-        arabicEl.textContent = arabic.text;
-        transEl.textContent = english.text;
-        refEl.textContent = `${english.surah.englishName} ${english.surah.number}:${english.numberInSurah}`;
+    const arabic = ayahs.find(d => d.edition.language === 'ar');
+    const english = ayahs.find(d => d.edition.language === 'en');
 
-        spinner.style.display = 'none';
-        card.classList.remove('hide');
-      } catch (err) {
-        spinner.style.display = 'none';
-        errorEl.textContent = 'Failed to fetch ayah. Please try again.';
-        errorEl.style.display = 'block';
-      }
-    }
+    if (!arabic || !english) throw new Error("Missing Arabic or English in response");
 
-    document.getElementById('get-ayah').addEventListener('click', displayRandomAyah);
-    resetAyahs();
+    arabicEl.textContent = arabic.text;
+    transEl.textContent = english.text;
+    refEl.textContent = `${english.surah.englishName} ${english.surah.number}:${english.numberInSurah}`;
+
+    spinner.style.display = 'none';
+    card.classList.remove('hide');
+  } catch (err) {
+    spinner.style.display = 'none';
+    errorEl.textContent = 'Failed to fetch ayah. Please try again.';
+    errorEl.style.display = 'block';
+    console.error(err); // Show actual error in browser console
+  }
+}
+
+document.getElementById('get-ayah').addEventListener('click', displayRandomAyah);
+resetAyahs();
   </script>
 </body>
 </html>
