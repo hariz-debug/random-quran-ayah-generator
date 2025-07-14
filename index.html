@@ -1,1 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Quran Ayah Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: radial-gradient(circle at top left, #001220, #000000 70%);
+      color: #e6e6e6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+    #ayah-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 1rem;
+      box-shadow: 0 0 25px rgba(0,0,0,0.8);
+      padding: 2rem;
+      max-width: 700px;
+      width: 100%;
+      text-align: center;
+      transition: opacity 0.4s ease-in-out;
+    }
+    #ayah-card.hide {
+      opacity: 0;
+    }
+    #arabic {
+      font-size: 1.8rem;
+      line-height: 2.4rem;
+    }
+    #translation {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      line-height: 1.6rem;
+    }
+    #reference {
+      margin-top: 0.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #80bfff;
+      position: relative;
+      display: inline-block;
+    }
+    #reference::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 100%;
+      height: 2px;
+      background: #80bfff;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+    #reference:hover::after {
+      transform: scaleX(1);
+    }
+    button {
+      margin-top: 2rem;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 2rem;
+      background: #102a43;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      transition: background 0.3s, transform 0.3s;
+    }
+    button:hover {
+      background: #1c3d5a;
+      transform: translateY(-2px);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    #spinner {
+      border: 4px solid rgba(255,255,255,0.2);
+      border-top-color: #80bfff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 2rem auto 0;
+      display: none;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    #error {
+      color: #ff8080;
+      margin-top: 1rem;
+      display: none;
+    }
+    footer {
+      margin-top: auto;
+      padding: 1rem 0;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+    @media (max-width: 600px) {
+      #arabic {
+        font-size: 1.5rem;
+      }
+      #translation {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="ayah-card" class="hide">
+    <div id="arabic"></div>
+    <div id="translation"></div>
+    <div id="reference"></div>
+  </div>
+  <div id="spinner"></div>
+  <div id="error"></div>
+  <button id="get-ayah">Get Random Ayah</button>
 
+  <footer>Powered by AlQuran.cloud API | Built by Hariz Ghani</footer>
+
+  <script>
+    const totalAyahs = 6236;
+    let remainingAyahs = [];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function resetAyahs() {
+      remainingAyahs = Array.from({length: totalAyahs}, (_, i) => i + 1);
+      shuffle(remainingAyahs);
+    }
+
+    async function fetchAyah(num) {
+      const url = `https://api.alquran.cloud/v1/ayah/${num}/editions/quran-uthmani,en.sahih`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Network response was not ok');
+      const data = await res.json();
+      return data.data;
+    }
+
+    async function displayRandomAyah() {
+      const card = document.getElementById('ayah-card');
+      const arabicEl = document.getElementById('arabic');
+      const transEl = document.getElementById('translation');
+      const refEl = document.getElementById('reference');
+      const spinner = document.getElementById('spinner');
+      const errorEl = document.getElementById('error');
+
+      if (remainingAyahs.length === 0) resetAyahs();
+      const ayahNum = remainingAyahs.pop();
+
+      card.classList.add('hide');
+      errorEl.style.display = 'none';
+      spinner.style.display = 'block';
+
+      try {
+        const data = await fetchAyah(ayahNum);
+        const arabic = data.find(d => d.language === 'ar');
+        const english = data.find(d => d.language === 'en');
+
+        arabicEl.textContent = arabic.text;
+        transEl.textContent = english.text;
+        refEl.textContent = `${english.surah.englishName} ${english.surah.number}:${english.numberInSurah}`;
+
+        spinner.style.display = 'none';
+        card.classList.remove('hide');
+      } catch (err) {
+        spinner.style.display = 'none';
+        errorEl.textContent = 'Failed to fetch ayah. Please try again.';
+        errorEl.style.display = 'block';
+      }
+    }
+
+    document.getElementById('get-ayah').addEventListener('click', displayRandomAyah);
+    resetAyahs();
+  </script>
+</body>
+</html>
