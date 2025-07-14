@@ -151,11 +151,12 @@
     }
 
     async function fetchAyah(num) {
-      const url = `https://api.alquran.cloud/v1/ayah/${num}/editions/quran-uthmani,en.sahih`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Network response was not ok');
-      const data = await res.json();
-      return data.data;
+  const url = `https://api.alquran.cloud/v1/ayah/${num}/editions/quran-uthmani,en.sahih`;
+  const corsProxy = "https://corsproxy.io/?";
+  const res = await fetch(corsProxy + url);
+  if (!res.ok) throw new Error('Network response was not ok');
+  const data = await res.json();
+  return data.data;
     }
 
     async function displayRandomAyah() {
