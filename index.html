@@ -176,8 +176,8 @@
 
       try {
         const data = await fetchAyah(ayahNum);
-        const arabic = data.find(d => d.language === 'ar');
-        const english = data.find(d => d.language === 'en');
+const arabic = data.find(d => d.edition.language === 'ar');
+const english = data.find(d => d.edition.language === 'en');
 
         arabicEl.textContent = arabic.text;
         transEl.textContent = english.text;
