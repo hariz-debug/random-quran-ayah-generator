@@ -147,6 +147,10 @@
           width: 100%;
         }
       }
+    #ayah-card.highlighted {
+        box-shadow: 0 0 40px 8px #80bfff, 0 0 25px rgba(0,0,0,0.8);
+        transition: box-shadow 0.5s, opacity 0.4s;
+      }
 
   </style>
 </head>
@@ -334,6 +338,7 @@ async function displayRandomAyah() {
   const ayahNum = remainingAyahs.pop();
 
   card.classList.add('hide');
+  scrollAndHighlightAyahCard();
   errorEl.style.display = 'none';
   spinner.style.display = 'block';
 
@@ -370,6 +375,7 @@ async function fetchAndDisplayAyahBySurahAyah(surah, ayah) {
   const errorEl = document.getElementById('error');
 
   card.classList.add('hide');
+  scrollAndHighlightAyahCard();
   errorEl.style.display = 'none';
   spinner.style.display = 'block';
 
@@ -427,6 +433,11 @@ document.getElementById('share-ayah').addEventListener('click', function() {
       text
     });
   } else {
+document.getElementById('ayah-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    document.getElementById('search-btn').click();
+  }
+});
     // WhatsApp share fallback (desktop or if native share is unavailable)
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
@@ -451,6 +462,12 @@ function showTempMsg(msg) {
   setTimeout(() => el.remove(), 1500);
 }
 
+function scrollAndHighlightAyahCard() {
+  const card = document.getElementById('ayah-card');
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  card.classList.add('highlighted');
+  setTimeout(() => card.classList.remove('highlighted'), 1200);
+}
     
   </script>
 </body>
