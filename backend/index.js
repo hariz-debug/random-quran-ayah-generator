@@ -46,9 +46,10 @@ app.get('/api/ayah', async (req, res) => {
 
 // Proxy route for ayah by surah and ayah number
 app.get('/api/ayah-by-surah', async (req, res) => {
-  const { surah, ayah } = req.query;
+  const surah = req.query.surah;
+  const ayah = req.query.ayah;
   if (!surah || !ayah) {
-    return res.status(400).json({ error: 'Surah and Ayah numbers are required' });
+    return res.status(400).json({ error: 'Surah and ayah number required' });
   }
   try {
     // Fetch from AlQuran.cloud API
