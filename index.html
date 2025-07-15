@@ -120,6 +120,19 @@
         font-size: 1rem;
       }
     }
+    #surah-select, #ayah-input, #search-btn {
+        font-size: 1.1rem;
+        padding: 0.5rem;
+        margin: 0.25rem;
+        border-radius: 0.7rem;
+        border: none;
+      }
+      @media (max-width: 600px) {
+        #surah-select, #ayah-input, #search-btn {
+          width: 90vw !important;
+          font-size: 1rem;
+        }
+      }
   </style>
 </head>
 <body>
@@ -131,9 +144,10 @@
   <div id="spinner"></div>
   <div id="error"></div>
   <div id="search-bar" style="margin-bottom: 2rem;">
-  <input type="number" id="surah-input" min="1" max="114" placeholder="Surah #" style="width: 80px;" />
-  <input type="number" id="ayah-input" min="1" placeholder="Ayah #" style="width: 80px;" />
-  <button id="search-btn">Search Ayah</button>
+<select id="surah-select" style="width:220px;max-width:90vw;"></select>
+<input type="number" id="ayah-input" min="1" placeholder="Ayah #" style="width:90px;max-width:40vw;">
+<button id="search-btn">Search Ayah</button>
+
 </div>
   <button id="get-ayah">Get Random Ayah</button>
 
@@ -149,6 +163,22 @@ function shuffle(array) {
     [array[i], array[j]] = [array[j], array[i]];
   }
 }
+    
+const surahs = [
+  { number: 1, name: "Al-Faatiha" },
+  { number: 2, name: "Al-Baqarah" },
+  // ... (continue all the way to 114, see previous message for full list!)
+  { number: 114, name: "An-Naas" }
+];
+
+// Populate the dropdown
+const surahSelect = document.getElementById('surah-select');
+surahs.forEach(surah => {
+  const option = document.createElement('option');
+  option.value = surah.number;
+  option.textContent = `${surah.number}. ${surah.name}`;
+  surahSelect.appendChild(option);
+});
 
 function resetAyahs() {
   remainingAyahs = Array.from({length: totalAyahs}, (_, i) => i + 1);
@@ -231,8 +261,8 @@ async function fetchAndDisplayAyahBySurahAyah(surah, ayah) {
   }
 }
     document.getElementById('search-btn').addEventListener('click', () => {
-  const surahNum = document.getElementById('surah-input').value;
-  const ayahNum = document.getElementById('ayah-input').value;
+const surahNum = document.getElementById('surah-select').value; // new: from dropdown
+const ayahNum = document.getElementById('ayah-input').value;
   if (!surahNum || !ayahNum) {
     alert('Please enter both Surah and Ayah numbers.');
     return;
