@@ -130,6 +130,11 @@
   </div>
   <div id="spinner"></div>
   <div id="error"></div>
+  <div id="search-bar" style="margin-bottom: 2rem;">
+  <input type="number" id="surah-input" min="1" max="114" placeholder="Surah #" style="width: 80px;" />
+  <input type="number" id="ayah-input" min="1" placeholder="Ayah #" style="width: 80px;" />
+  <button id="search-btn">Search Ayah</button>
+</div>
   <button id="get-ayah">Get Random Ayah</button>
 
   <footer>Powered by AlQuran.cloud API | Built by Hariz Ghani</footer>
@@ -196,6 +201,44 @@ async function displayRandomAyah() {
     console.error(err); // Show actual error in browser console
   }
 }
+    
+async function fetchAndDisplayAyahBySurahAyah(surah, ayah) {
+  const card = document.getElementById('ayah-card');
+  const arabicEl = document.getElementById('arabic');
+  const transEl = document.getElementById('translation');
+  const refEl = document.getElementById('reference');
+  const spinner = document.getElementById('spinner');
+  const errorEl = document.getElementById('error');
+
+  card.classList.add('hide');
+  errorEl.style.display = 'none';
+  spinner.style.display = 'block';
+
+  try {
+    const res = await fetch(`https://random-quran-ayah-generator-2.onrender.com/api/ayah-by-surah?surah=${surah}&ayah=${ayah}`);
+    if (!res.ok) throw new Error('Network response was not ok');
+    const data = await res.json();
+    const [arabic, english] = data.data;
+    arabicEl.textContent = arabic.text;
+    transEl.textContent = english.text;
+    refEl.textContent = `${english.surah.englishName} ${english.surah.number}:${english.numberInSurah}`;
+    spinner.style.display = 'none';
+    card.classList.remove('hide');
+  } catch (err) {
+    spinner.style.display = 'none';
+    errorEl.textContent = 'Failed to fetch ayah. Please try again.';
+    errorEl.style.display = 'block';
+  }
+}
+    document.getElementById('search-btn').addEventListener('click', () => {
+  const surahNum = document.getElementById('surah-input').value;
+  const ayahNum = document.getElementById('ayah-input').value;
+  if (!surahNum || !ayahNum) {
+    alert('Please enter both Surah and Ayah numbers.');
+    return;
+  }
+  fetchAndDisplayAyahBySurahAyah(surahNum, ayahNum);
+});
 
 document.getElementById('get-ayah').addEventListener('click', displayRandomAyah);
 resetAyahs();
