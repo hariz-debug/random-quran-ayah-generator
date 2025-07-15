@@ -151,6 +151,13 @@
   </style>
 </head>
 <body>
+  <div id="search-bar" style="margin-bottom: 2rem;">
+    <select id="surah-select" style="width:220px;max-width:90vw;"></select>
+    <input type="number" id="ayah-input" min="1" placeholder="Ayah #" style="width:90px;max-width:40vw;">
+    <button id="search-btn">Search Ayah</button>
+  </div>
+
+  <!-- Main ayah card (Arabic, translation, reference, copy/share) -->
   <div id="ayah-card" class="hide">
     <div id="arabic"></div>
     <div id="translation"></div>
@@ -158,19 +165,13 @@
     <div id="copy-share" style="margin-top:1.2rem;">
       <button id="copy-ayah" style="margin-right:8px;">Copy Ayah</button>
       <button id="share-ayah">Share</button>
+    </div>
   </div>
   <div id="spinner"></div>
   <div id="error"></div>
-  <div id="search-bar" style="margin-bottom: 2rem;">
-<select id="surah-select" style="width:220px;max-width:90vw;"></select>
-<input type="number" id="ayah-input" min="1" placeholder="Ayah #" style="width:90px;max-width:40vw;">
-<button id="search-btn">Search Ayah</button>
 
-</div>
   <button id="get-ayah">Get Random Ayah</button>
-
   <footer>Powered by AlQuran.cloud API | Built by Hariz Ghani</footer>
-
   <script>
 const totalAyahs = 6236;
 let remainingAyahs = [];
