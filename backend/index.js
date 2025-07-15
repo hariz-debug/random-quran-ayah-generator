@@ -4,6 +4,15 @@ const fetch = require('node-fetch'); // install this if you haven't: npm install
 const app = express();
 const PORT = process.env.PORT || 10000;
 
+// === ADD THIS BLOCK! ===
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
+// === END ADD ===
+
 // Route to check if proxy is running
 app.get('/', (req, res) => {
   res.send('Quran API Proxy is running.');
