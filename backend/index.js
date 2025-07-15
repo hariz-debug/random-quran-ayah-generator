@@ -4,14 +4,24 @@ const fetch = require('node-fetch'); // install this if you haven't: npm install
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// === ADD THIS BLOCK! ===
+// --- CORS middleware ---
+const allowedOrigins = [
+  "https://random-quran-ayah-generator.onrender.com"
+];
+
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   next();
 });
-// === END ADD ===
+
+app.options('*', (req, res) => {
+  res.sendStatus(200);
+});
 
 // Route to check if proxy is running
 app.get('/', (req, res) => {
