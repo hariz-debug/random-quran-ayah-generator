@@ -44,6 +44,22 @@ app.get('/api/ayah', async (req, res) => {
   }
 });
 
+// Proxy route for ayah by surah and ayah number
+app.get('/api/ayah-by-surah', async (req, res) => {
+  const { surah, ayah } = req.query;
+  if (!surah || !ayah) {
+    return res.status(400).json({ error: 'Surah and Ayah numbers are required' });
+  }
+  try {
+    // Fetch from AlQuran.cloud API
+    const response = await fetch(`https://api.alquran.cloud/v1/ayah/${surah}:${ayah}/editions/quran-uthmani,en.sahih`);
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch ayah' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Backend proxy listening on port ${PORT}`);
 });
