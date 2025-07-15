@@ -1,23 +1,30 @@
 const express = require('express');
-const fetch = require('node-fetch'); // If you get errors, use "npm install node-fetch"
+const fetch = require('node-fetch'); // install this if you haven't: npm install node-fetch
+
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
-app.get('/api/ayah/:num', async (req, res) => {
-  const num = req.params.num;
-  const url = `https://api.alquran.cloud/v1/ayah/${num}/editions/quran-uthmani,en.sahih`;
-
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    res.json(data); // Forward everything to the frontend
-  } catch (err) {
-    res.status(500).json({ error: 'API error', detail: err.message });
-  }
-});
-
+// Route to check if proxy is running
 app.get('/', (req, res) => {
   res.send('Quran API Proxy is running.');
 });
 
-app.listen(PORT, () => console.log(`Backend proxy listening on port ${PORT}`));
+// Proxy route for ayah
+app.get('/api/ayah', async (req, res) => {
+  const number = req.query.number;
+  if (!number) {
+    return res.status(400).json({ error: 'No ayah number provided' });
+  }
+  try {
+    // Fetch from AlQuran.cloud API
+    const response = await fetch(`https://api.alquran.cloud/v1/ayah/${number}/editions/quran-uthmani,en.sahih`);
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch ayah' });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Backend proxy listening on port ${PORT}`);
+});
