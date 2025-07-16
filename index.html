@@ -225,6 +225,12 @@
     <div id="arabic"></div>
     <div id="translation"></div>
     <div id="reference"></div>
+    <div id="audio-controls" style="margin-top: 1rem;">
+      <button id="play-ayah-audio">🔊 Play Ayah Audio</button>
+      <button id="play-surah-audio">📖 Play Surah Audio</button>
+      <audio id="ayah-audio" style="display:none;"></audio>
+      <audio id="surah-audio" style="display:none;"></audio>
+    </div>
     <button id="play-audio" style="margin-top:12px;">▶ Play Audio</button>
     <div id="nav-buttons" style="margin: 1.5rem 0; display: flex; gap: 1.1rem;">
       <button id="prev-ayah">Previous</button>
@@ -447,6 +453,8 @@ async function displayRandomAyah() {
 
     const arabic = ayahs.find(d => d.edition.language === 'ar');
     const english = ayahs.find(d => d.edition.language === 'en');
+    window.currentAyahGlobalNumber = arabic.number;         // This is the global ayah number
+    window.currentSurahNumber = english.surah.number;       // This is the surah number (1-114)
 
     if (!arabic || !english) throw new Error("Missing Arabic or English in response");
 
@@ -482,6 +490,8 @@ async function fetchAndDisplayAyahBySurahAyah(surah, ayah) {
     if (!res.ok) throw new Error('Network response was not ok');
     const data = await res.json();
     const [arabic, english] = data.data;
+    window.currentAyahGlobalNumber = arabic.number;   // This is the global ayah number
+    window.currentSurahNumber = english.surah.number; // This is the surah number (1-114)
     arabicEl.textContent = arabic.text;
     transEl.textContent = english.text;
     refEl.textContent = `${english.surah.englishName} ${english.surah.number}:${english.numberInSurah}`;
@@ -634,7 +644,26 @@ function updateTranslationToggle() {
   document.getElementById('en-toggle').classList.toggle('active', currentTranslation === 'en');
   document.getElementById('my-toggle').classList.toggle('active', currentTranslation === 'my');
 }
-    
+
+  // Handles play ayah/surah audio
+document.getElementById('play-ayah-audio').addEventListener('click', function() {
+  // Get current ayah info (must have global ayah number and surah number in JS vars)
+  const ayahNum = window.currentAyahGlobalNumber; // Make sure you store the current global ayah number!
+  const ayahAudio = document.getElementById('ayah-audio');
+  ayahAudio.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayahNum}.mp3`;
+  ayahAudio.style.display = 'block';
+  ayahAudio.play();
+});
+
+// Surah recitation (whole surah)
+document.getElementById('play-surah-audio').addEventListener('click', function() {
+  // Get current surah
+  const surahNum = window.currentSurahNumber; // Store/update this when you load ayah!
+  const surahAudio = document.getElementById('surah-audio');
+  surahAudio.src = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${surahNum}.mp3`;
+  surahAudio.style.display = 'block';
+  surahAudio.play();
+});   
 
   </script>
 </body>
