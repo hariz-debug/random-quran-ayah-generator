@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Random Quran Ayah Generator</title>
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -228,8 +230,8 @@
     <div id="audio-controls" style="margin-top: 1rem;">
       <button id="play-ayah-audio">🔊 Play Ayah Audio</button>
       <button id="play-surah-audio">📖 Play Surah Audio</button>
-      <audio id="ayah-audio" style="display:none;"></audio>
-      <audio id="surah-audio" style="display:none;"></audio>
+      <audio id="ayah-audio" controls style="width:100%;margin-top:12px;"></audio>
+      <audio id="surah-audio" controls style="width:100%;margin-top:12px;"></audio>
     </div>
     <div id="nav-buttons" style="margin: 1.5rem 0; display: flex; gap: 1.1rem;">
       <button id="prev-ayah">Previous</button>
@@ -644,29 +646,37 @@ function updateTranslationToggle() {
   document.getElementById('my-toggle').classList.toggle('active', currentTranslation === 'my');
 }
 
+// First, initialize Plyr at the top of your script
+const ayahPlayer = new Plyr('#ayah-audio');
+const surahPlayer = new Plyr('#surah-audio');
+
+// Then use only this for the button handler
 document.getElementById('play-ayah-audio').addEventListener('click', function() {
-  const ayahNum = window.currentAyahGlobalNumber;
-  const ayahAudio = document.getElementById('ayah-audio');
-  const surahAudio = document.getElementById('surah-audio');
-  surahAudio.pause(); // Stop surah audio if playing
-  ayahAudio.pause();
-  ayahAudio.currentTime = 0;
-  ayahAudio.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayahNum}.mp3`;
-  ayahAudio.style.display = 'block';
-  ayahAudio.play();
+  ayahPlayer.source = {
+    type: 'audio',
+    sources: [
+      {
+        src: `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${window.currentAyahGlobalNumber}.mp3`,
+        type: 'audio/mp3'
+      }
+    ]
+  };
+  ayahPlayer.play();
 });
 
+// Same for surah
 document.getElementById('play-surah-audio').addEventListener('click', function() {
-  const surahNum = window.currentSurahNumber;
-  const surahAudio = document.getElementById('surah-audio');
-  const ayahAudio = document.getElementById('ayah-audio');
-  ayahAudio.pause(); // Stop ayah audio if playing
-  surahAudio.pause();
-  surahAudio.currentTime = 0;
-  surahAudio.src = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${surahNum}.mp3`;
-  surahAudio.style.display = 'block';
-  surahAudio.play();
-});    
+  surahPlayer.source = {
+    type: 'audio',
+    sources: [
+      {
+        src: `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${window.currentSurahNumber}.mp3`,
+        type: 'audio/mp3'
+      }
+    ]
+  };
+  surahPlayer.play();
+});
 
   </script>
 </body>
