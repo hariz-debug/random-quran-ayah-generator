@@ -188,6 +188,23 @@
         gap: 0.5rem;
       }
     }
+    #translation-toggle button {
+      background: #1c3d5a;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 1.1rem;
+      border-radius: 1.1rem;
+      font-size: 1rem;
+      margin: 0 3px;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+    #translation-toggle button.active {
+      background: #80bfff;
+      color: #102a43;
+      opacity: 1;
+    }
 
 
   </style>
@@ -201,9 +218,14 @@
 
   <!-- Main ayah card (Arabic, translation, reference, copy/share) -->
   <div id="ayah-card" class="hide">
+    <div id="translation-toggle" style="margin-bottom:1.2rem;">
+      <button id="en-toggle" class="active">English</button>
+      <button id="my-toggle">Malay</button>
+    </div>
     <div id="arabic"></div>
     <div id="translation"></div>
     <div id="reference"></div>
+    <button id="play-audio" style="margin-top:12px;">▶ Play Audio</button>
     <div id="nav-buttons" style="margin: 1.5rem 0; display: flex; gap: 1.1rem;">
       <button id="prev-ayah">Previous</button>
       <button id="next-ayah">Next</button>
@@ -221,6 +243,25 @@
   <script>
 const totalAyahs = 6236;
 let remainingAyahs = [];
+let currentTranslation = 'en'; // 'en' for English, 'my' for Malay
+
+function showAyahCard() {
+  const card = document.getElementById('ayah-card');
+  card.classList.remove('hide');
+  card.style.opacity = 0;
+  setTimeout(() => {
+    card.style.transition = "opacity 0.4s";
+    card.style.opacity = 1;
+  }, 30);
+}
+
+function hideAyahCard() {
+  const card = document.getElementById('ayah-card');
+  card.style.opacity = 0;
+  setTimeout(() => {
+    card.classList.add('hide');
+  }, 400);
+}
 
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -394,7 +435,7 @@ async function displayRandomAyah() {
   if (remainingAyahs.length === 0) resetAyahs();
   const ayahNum = remainingAyahs.pop();
 
-  card.classList.add('hide');
+  hideAyahCard();
   scrollAndHighlightAyahCard();
   errorEl.style.display = 'none';
   spinner.style.display = 'block';
@@ -414,7 +455,7 @@ async function displayRandomAyah() {
     refEl.textContent = `${english.surah.englishName} ${english.surah.number}:${english.numberInSurah}`;
 
     spinner.style.display = 'none';
-    card.classList.remove('hide');
+    showAyahCard();
   } catch (err) {
     spinner.style.display = 'none';
     errorEl.textContent = 'Failed to fetch ayah. Please try again.';
@@ -431,7 +472,7 @@ async function fetchAndDisplayAyahBySurahAyah(surah, ayah) {
   const spinner = document.getElementById('spinner');
   const errorEl = document.getElementById('error');
 
-  card.classList.add('hide');
+  hideAyahCard();
   scrollAndHighlightAyahCard();
   errorEl.style.display = 'none';
   spinner.style.display = 'block';
@@ -445,7 +486,7 @@ async function fetchAndDisplayAyahBySurahAyah(surah, ayah) {
     transEl.textContent = english.text;
     refEl.textContent = `${english.surah.englishName} ${english.surah.number}:${english.numberInSurah}`;
     spinner.style.display = 'none';
-    card.classList.remove('hide');
+    showAyahCard();
   } catch (err) {
     spinner.style.display = 'none';
     errorEl.textContent = 'Failed to fetch ayah. Please try again.';
@@ -578,6 +619,22 @@ document.getElementById('prev-ayah').addEventListener('click', () => {
   document.getElementById('ayah-input').value = currentAyah;
   fetchAndDisplayAyahBySurahAyah(currentSurah, currentAyah);
 });
+document.getElementById('en-toggle').addEventListener('click', () => {
+  currentTranslation = 'en';
+  updateTranslationToggle();
+  reloadCurrentAyahOrPage();
+});
+document.getElementById('my-toggle').addEventListener('click', () => {
+  currentTranslation = 'my';
+  updateTranslationToggle();
+  reloadCurrentAyahOrPage();
+});
+
+function updateTranslationToggle() {
+  document.getElementById('en-toggle').classList.toggle('active', currentTranslation === 'en');
+  document.getElementById('my-toggle').classList.toggle('active', currentTranslation === 'my');
+}
+    
 
   </script>
 </body>
