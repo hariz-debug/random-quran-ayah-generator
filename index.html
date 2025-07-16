@@ -151,6 +151,44 @@
         box-shadow: 0 0 40px 8px #80bfff, 0 0 25px rgba(0,0,0,0.8);
         transition: box-shadow 0.5s, opacity 0.4s;
       }
+    #nav-buttons {
+  margin: 1.3rem 0 0.2rem 0;
+  display: flex;
+  gap: 1.1rem;
+  justify-content: center;
+}
+
+    #nav-buttons button {
+      background: #102a43;
+      color: #fff;
+      border: none;
+      border-radius: 2rem;
+      padding: 0.65rem 1.8rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.17);
+    }
+    
+    #nav-buttons button:hover {
+      background: #1c3d5a;
+      transform: translateY(-2px);
+    }
+    
+    #nav-buttons button:active {
+      transform: translateY(0);
+    }
+    
+    @media (max-width: 600px) {
+      #nav-buttons button {
+        font-size: 0.97rem;
+        padding: 0.65rem 1.2rem;
+      }
+      #nav-buttons {
+        gap: 0.5rem;
+      }
+    }
+
 
   </style>
 </head>
@@ -166,6 +204,10 @@
     <div id="arabic"></div>
     <div id="translation"></div>
     <div id="reference"></div>
+    <div id="nav-buttons" style="margin: 1.5rem 0; display: flex; gap: 1.1rem;">
+      <button id="prev-ayah">Previous</button>
+      <button id="next-ayah">Next</button>
+    </div>
     <div id="copy-share" style="margin-top:1.2rem;">
       <button id="copy-ayah" style="margin-right:8px;">Copy Ayah</button>
       <button id="share-ayah">Share</button>
@@ -303,7 +345,22 @@ const surahs = [
   { number: 113, name: "Al-Falaq" },
   { number: 114, name: "An-Naas" }
 ];
+    
+let currentSurah = 1;
+let currentAyah = 1;
 
+function getAyahsInSurah(surahNumber) {
+  // Source: https://github.com/semarketir/quranjson/blob/master/source/surahInfo.json
+  const ayahCounts = [
+    7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111, 43, 52, 99, 128, 111, 110, 98, 135,
+    112, 78, 118, 64, 77, 227, 93, 88, 69, 60, 34, 30, 73, 54, 45, 83, 182, 88, 75, 85, 54, 53,
+    89, 59, 37, 35, 38, 29, 18, 45, 60, 49, 62, 55, 78, 96, 29, 22, 24, 13, 14, 11, 11, 18, 12,
+    12, 30, 52, 52, 44, 28, 28, 20, 56, 40, 31, 50, 40, 46, 42, 29, 19, 36, 25, 22, 17, 19, 26,
+    30, 20, 15, 21, 11, 8, 8, 19, 5, 8, 8, 11, 11, 8, 3, 9, 5, 4, 7, 3, 6, 3
+  ];
+  return ayahCounts[surahNumber - 1];
+}
+    
 // Populate the dropdown
 const surahSelect = document.getElementById('surah-select');
 surahs.forEach(surah => {
@@ -407,7 +464,29 @@ const ayahNum = document.getElementById('ayah-input').value;
 
 document.getElementById('get-ayah').addEventListener('click', displayRandomAyah);
 resetAyahs();
-  
+    
+  // When user clicks Search
+document.getElementById('search-btn').addEventListener('click', () => {
+  const surahNum = Number(document.getElementById('surah-select').value);
+  const ayahNum = Number(document.getElementById('ayah-input').value);
+  if (!surahNum || !ayahNum) {
+    alert('Please enter both Surah and Ayah numbers.');
+    return;
+  }
+  currentSurah = surahNum;
+  currentAyah = ayahNum;
+  fetchAndDisplayAyahBySurahAyah(currentSurah, currentAyah);
+});
+
+// When user selects a surah, show Ayah 1
+document.getElementById('surah-select').addEventListener('change', () => {
+  const surahNum = Number(document.getElementById('surah-select').value);
+  currentSurah = surahNum;
+  currentAyah = 1;
+  document.getElementById('ayah-input').value = 1;
+  fetchAndDisplayAyahBySurahAyah(currentSurah, currentAyah);
+});
+
 // Helper: format ayah for copying/sharing
 function getAyahTextForShare() {
   const arabic = document.getElementById('arabic').textContent;
@@ -469,6 +548,37 @@ function scrollAndHighlightAyahCard() {
   setTimeout(() => card.classList.remove('highlighted'), 1200);
 }
     
+document.getElementById('next-ayah').addEventListener('click', () => {
+  const ayahsInCurrentSurah = getAyahsInSurah(currentSurah);
+  if (currentAyah < ayahsInCurrentSurah) {
+    currentAyah++;
+  } else if (currentSurah < 114) {
+    currentSurah++;
+    currentAyah = 1;
+    document.getElementById('surah-select').value = currentSurah;
+  } else {
+    // Already at last ayah of last surah
+    return;
+  }
+  document.getElementById('ayah-input').value = currentAyah;
+  fetchAndDisplayAyahBySurahAyah(currentSurah, currentAyah);
+});
+
+document.getElementById('prev-ayah').addEventListener('click', () => {
+  if (currentAyah > 1) {
+    currentAyah--;
+  } else if (currentSurah > 1) {
+    currentSurah--;
+    currentAyah = getAyahsInSurah(currentSurah);
+    document.getElementById('surah-select').value = currentSurah;
+  } else {
+    // Already at first ayah of first surah
+    return;
+  }
+  document.getElementById('ayah-input').value = currentAyah;
+  fetchAndDisplayAyahBySurahAyah(currentSurah, currentAyah);
+});
+
   </script>
 </body>
 </html>
