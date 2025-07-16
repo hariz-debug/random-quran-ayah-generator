@@ -231,7 +231,6 @@
       <audio id="ayah-audio" style="display:none;"></audio>
       <audio id="surah-audio" style="display:none;"></audio>
     </div>
-    <button id="play-audio" style="margin-top:12px;">▶ Play Audio</button>
     <div id="nav-buttons" style="margin: 1.5rem 0; display: flex; gap: 1.1rem;">
       <button id="prev-ayah">Previous</button>
       <button id="next-ayah">Next</button>
@@ -645,25 +644,29 @@ function updateTranslationToggle() {
   document.getElementById('my-toggle').classList.toggle('active', currentTranslation === 'my');
 }
 
-  // Handles play ayah/surah audio
 document.getElementById('play-ayah-audio').addEventListener('click', function() {
-  // Get current ayah info (must have global ayah number and surah number in JS vars)
-  const ayahNum = window.currentAyahGlobalNumber; // Make sure you store the current global ayah number!
+  const ayahNum = window.currentAyahGlobalNumber;
   const ayahAudio = document.getElementById('ayah-audio');
+  const surahAudio = document.getElementById('surah-audio');
+  surahAudio.pause(); // Stop surah audio if playing
+  ayahAudio.pause();
+  ayahAudio.currentTime = 0;
   ayahAudio.src = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayahNum}.mp3`;
   ayahAudio.style.display = 'block';
   ayahAudio.play();
 });
 
-// Surah recitation (whole surah)
 document.getElementById('play-surah-audio').addEventListener('click', function() {
-  // Get current surah
-  const surahNum = window.currentSurahNumber; // Store/update this when you load ayah!
+  const surahNum = window.currentSurahNumber;
   const surahAudio = document.getElementById('surah-audio');
+  const ayahAudio = document.getElementById('ayah-audio');
+  ayahAudio.pause(); // Stop ayah audio if playing
+  surahAudio.pause();
+  surahAudio.currentTime = 0;
   surahAudio.src = `https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/${surahNum}.mp3`;
   surahAudio.style.display = 'block';
   surahAudio.play();
-});   
+});    
 
   </script>
 </body>
